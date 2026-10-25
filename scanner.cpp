@@ -80,11 +80,11 @@ int main() {
     enum class TokenType
     {
         Default,
-        Keyword,
+        Keyword,//Token.specificType values: READ, WRITE
         Identifier,
         Number,
-        Operator,
-        Punctuation,
+        Operator,//Token.specificType values: ADD, SUB, ASSIGN, DIV, MULT
+        Punctuation,//Token.specificType: LPAREN, RPAREN, PERIOD
         Comment,
     };
     class LexAnalyzer
