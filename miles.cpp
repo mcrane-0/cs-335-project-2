@@ -29,7 +29,7 @@ void inputFileToVector(){
     while (getline (infile, line)) {
         infileVector.push_back(line);
     }
-    cout << "DEBUG:\tImported infile to infileVector!" << endl;
+    //cout << "DEBUG:\tImported infile to infileVector!" << endl;
 }
 
 void nextLineAsVector(int lineNum){
@@ -52,24 +52,16 @@ int main() {
         Number,
         Operator,//Token.specificType values: ADD, SUB, ASSIGN, DIV, MULT
         Punctuation,//Token.specificType: LPAREN, RPAREN, PERIOD
-        Comment,
     };
     class LexAnalyzer
     {
         private:
             int position;
-                bool blockComment;
-
 
         public:
             LexAnalyzer(const vector<char>& inputVector)
             {
                 position = 0;
-                blockComment = false;
-            }
-            bool getBlockComment()
-            {
-                return blockComment;
             }
             void advance()
             {
@@ -154,13 +146,16 @@ int main() {
         string specificType = "";
     };
 
-    
+
+    vector<Token> tokens = {}; // vector to store tokens from input
+
+    // Load input file and store each line as a token in "tokens" vector. Logic mostly reused from Project 1
+    cout << "LOADING TOKENS FROM INPUT FILE..." << endl << endl;
     inputFileToVector();
     currentLine = 0;
-
     while (currentLine < infileVector.size()){
         nextLineAsVector(currentLine);
-        cout << endl << "STARTING AT NEW LINE: " << currentLine << endl;
+        //cout << endl << "STARTING AT NEW LINE: " << currentLine << endl;
             
         string number = "";
         string word = "";
@@ -169,170 +164,167 @@ int main() {
         Token tkn;
 
         //Loop processes 1 line from input file
-        while (lexer.inputRemaining())
+        char currentChar = lexer.current();
+        switch (currentChar)
         {
-            char currentChar = lexer.current();
-            switch (currentChar)
+        case ('+'):
+            tkn.type = TokenType::Operator;
+            tkn.specificType = "ADD";
+            cout << "add token stored!" << endl;
+            //output << "+" << endl;
+            lexer.advance();
+
+
+            break;
+        case ('-'):
+            tkn.type = TokenType::Operator;
+            tkn.specificType = "SUB";
+            cout << "sub token stored!" << endl;
+            //output << "-" << endl;
+            lexer.advance();
+            break;
+
+        case ('*'):
+            tkn.type = TokenType::Operator;
+            tkn.specificType = "MULT";
+            cout << "mult token stored!" << endl;
+            //output << "*" << endl;
+            lexer.advance();;
+            break;
+        case ('/'):
+            tkn.type = TokenType::Operator;
+            tkn.specificType = "DIV";
+            cout << "div token stored!" << endl;
+            //output << "/" << endl;
+            lexer.advance();
+            break;
+
+        case (':'):
+            if (lexer.peek() == '=')
             {
-            case ('+'):
                 tkn.type = TokenType::Operator;
-                tkn.specificType = "ADD";
-                cout << "add token stored!";
-                //output << "+" << endl;
+                tkn.specificType = "ASSIGN";
+                cout << "assign token stored!" << endl;
+                //output << ":=" << endl;
+                lexer.advance();
+                lexer.advance();
+            }
+            else
+            {
+                cout << "unhandled case" << endl;
+                lexer.advance();
+            }
+            break;
+        case ('('):
+            tkn.type = TokenType::Punctuation;
+            tkn.specificType = "LPAREN";
+            cout << "lparen token stored!" << endl;
+            //output << "(" << endl;
+            lexer.advance();
+            break;
+        case (')'):
+            tkn.type = TokenType::Punctuation;
+            tkn.specificType = "RPAREN";
+            cout << "rparen token stored!" << endl;
+            //output << ")" << endl;
+            lexer.advance();
+            break;
+        case ('.'):
+            if (lexer.isDigit(lexer.peek()))
+            {
+                number = ".";
+
                 lexer.advance();
 
-
-                break;
-            case ('-'):
-                tkn.type = TokenType::Operator;
-                tkn.specificType = "SUB";
-                cout << "sub token stored!";
-                //output << "-" << endl;
-                lexer.advance();
-                break;
-
-            case ('*'):
-                tkn.type = TokenType::Operator;
-                tkn.specificType = "MULT";
-                cout << "mult token stored!";
-                //output << "*" << endl;
-                lexer.advance();;
-                break;
-            case ('/'):
-                tkn.type = TokenType::Operator;
-                tkn.specificType = "DIV";
-                cout << "div token stored";
-                //output << "/" << endl;
-                lexer.advance();
-                break;
-
-            case (':'):
-                if (lexer.peek() == '=')
+                while (lexer.isDigit(lexer.current()))
                 {
-                    tkn.type = TokenType::Operator;
-                    tkn.specificType = "ASSIGN";
-                    cout << "assign token stored";
-                    output << ":=" << endl;
-                    lexer.advance();
+                    number += lexer.current();
                     lexer.advance();
                 }
-                else
-                {
-                    cout << "unhandled case";
-                    lexer.advance();
-                }
-                break;
-            case ('('):
+
+                tkn.type = TokenType::Number;
+                cout << number << " stored as token!" << endl;
+                //output << number << endl;
+                number = "";
+                cout << " number cleared!";
+            }
+            else
+            {
                 tkn.type = TokenType::Punctuation;
-                tkn.specificType = "LPAREN";
-                cout << "lparen token stored";
-                output << "(" << endl;
+                tkn.specificType = "PERIOD";
+                cout << "period stored!" << endl;
+                //output << "." << endl;
                 lexer.advance();
-                break;
-            case (')'):
-                tkn.type = TokenType::Punctuation;
-                tkn.specificType = "RPAREN";
-                cout << "rparen token stored";
-                output << ")" << endl;
-                lexer.advance();
-                break;
-            case ('.'):
-                if (lexer.isDigit(lexer.peek()))
+            }
+            break;
+        case (' '):
+            lexer.ignoreWhiteSpace();
+            break;
+        default:
+            if (lexer.isDigit(currentChar))
+            {
+                bool hasDecimal = false;
+                while (lexer.isDigit(lexer.current()) ||
+                    (lexer.current() == '.' && !hasDecimal))
                 {
-                    number = ".";
-
-                    lexer.advance();
-
-                    while (lexer.isDigit(lexer.current()))
+                    if (lexer.current() == '.')
                     {
-                        number += lexer.current();
-                        lexer.advance();
+                        hasDecimal = true;
                     }
-
-                    tkn.type = TokenType::Number;
-                    cout << number << " stored as token!";
-                    output << number << endl;
-                    number = "";
-                    cout << " number cleared!";
-                }
-                else
-                {
-                    tkn.type = TokenType::Punctuation;
-                    tkn.specificType = "PERIOD";
-                    cout << "period stored!";
-                    output << "." << endl;
+                    number += lexer.current();
                     lexer.advance();
                 }
-                break;
-            case (' '):
-                lexer.ignoreWhiteSpace();
-                break;
-            default:
-                if (lexer.isDigit(currentChar))
+                tkn.type = TokenType::Number;
+                cout << number << " stored as token!\t";
+                //output << number << endl;
+                number = "";
+                cout << "number cleared!" << endl;
+            }
+            else if (lexer.isLetter(currentChar))
+            {
+                while (lexer.isLetter(lexer.current()) || lexer.isDigit(lexer.current()))
                 {
-                    bool hasDecimal = false;
-                    while (lexer.isDigit(lexer.current()) ||
-                        (lexer.current() == '.' && !hasDecimal))
-                    {
-                        if (lexer.current() == '.')
-                        {
-                            hasDecimal = true;
-                        }
-                        number += lexer.current();
-                        lexer.advance();
-                    }
-                    tkn.type = TokenType::Number;
-                    cout << number << " stored as token!\n";
-                    output << number << endl;
-                    number = "";
-                    cout << "number cleared!";
+                    word += lexer.current();
+                    lexer.advance();
                 }
-                else if (lexer.isLetter(currentChar))
+                if (lexer.isKeyword(word))
                 {
-                    while (lexer.isLetter(lexer.current()) || lexer.isDigit(lexer.current()))
+                    tkn.type = TokenType::Keyword;
+                    if (word == "read")
                     {
-                        word += lexer.current();
-                        lexer.advance();
-                    }
-                    if (lexer.isKeyword(word))
-                    {
-                        tkn.type = TokenType::Keyword;
-                        if (word == "read")
-                        {
-                            tkn.specificType = "READ";
-                            cout << "keyword read stored";
-                            output << "read" << endl;
+                        tkn.specificType = "READ";
+                        cout << "keyword read stored\t";
+                        //output << "read" << endl;
 
-                        }
-                        else if (word == "write")
-                        {
-                            tkn.specificType = "WRITE";
-                            cout << "keyword write stored";
-                            output << "write" << endl;
-                        }
-                        else
-                        {
-                            cout << "how did we get here";
-                        }
+                    }
+                    else if (word == "write")
+                    {
+                        tkn.specificType = "WRITE";
+                        cout << "keyword write stored\t";
+                        //output << "write" << endl;
                     }
                     else
                     {
-                        tkn.type = TokenType::Identifier;
-                        tkn.specificType = word;
-                        cout << "identifier \" " << word << "\" stored!";
-                        output << word << endl;
+                        cout << "how did we get here\t";
                     }
-                    word = "";
-                    cout << " word cleared!";
-
                 }
+                else
+                {
+                    tkn.type = TokenType::Identifier;
+                    tkn.specificType = word;
+                    cout << "identifier \"" << word << "\" stored!\t";
+                    //output << word << endl;
+                }
+                word = "";
+                cout << " word cleared!" << endl;
             }
         }
         currentLine++;
-    
-}
+    }
+    cout << endl << "LOADING TOKENS COMPLETE!" << endl << endl;
 
-    output.close();
+    // now the parsing begins...
+
     
     return 0;
 }
