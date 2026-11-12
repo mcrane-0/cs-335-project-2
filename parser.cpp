@@ -91,7 +91,7 @@ bool isStatement();
 
 bool isAddOp()
 {
-    if (tokenVector[n].specificType == "ADD" || tokenVector[n].specificType == "SUB")
+    if (tokenVector[n].specificType == "+" || tokenVector[n].specificType == "-")
     {
         if (isExecuting == 0){ // if not already executing,
             isExecuting = 1; // it is now
@@ -110,7 +110,7 @@ bool isAddOp()
 }
 bool isMultOp()
 {
-    if (tokenVector[n].specificType == "MULT" || tokenVector[n].specificType == "DIV")
+    if (tokenVector[n].specificType == "*" || tokenVector[n].specificType == "/")
     {
         if (isExecuting == 0){ // if not executing
             isExecuting = 1; // it is now
@@ -138,7 +138,7 @@ bool isFactor()
     {
         isExecuting = 0;
 
-        if (tokenVector[n].specificType == "END"){
+        if (tokenVector[n].specificType == "$$"){
             cout << endl << "    Token:\t$$ consumed ";
             return true;
         }
@@ -147,7 +147,7 @@ bool isFactor()
         n++;
         return true;
     }
-    else if (tokenVector[n].specificType == "LPAREN")
+    else if (tokenVector[n].specificType == "(")
     {
         //Check this logic.
         isExecuting = 0;
@@ -157,7 +157,7 @@ bool isFactor()
         {
             return false;
         }
-        if (tokenVector[n].specificType != "RPAREN")
+        if (tokenVector[n].specificType != ")")
         {
             return false;
         }
@@ -241,7 +241,7 @@ bool isStatement()
         isExecuting = 0;
         cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         n++;
-        if (tokenVector[n].specificType == "ASSIGN")
+        if (tokenVector[n].specificType == ":=")
         {
             isExecuting = 0;
             cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
@@ -406,14 +406,14 @@ int main() {
         {
         case ('+'):
             tkn.type = TokenType::Operator;
-            tkn.specificType = "ADD";
+            tkn.specificType = "+";
             cout << "add token stored!" << endl;
             tokenVector.push_back(tkn); // push token onto vector
             lexer.advance();
             break;
         case ('-'):
             tkn.type = TokenType::Operator;
-            tkn.specificType = "SUB";
+            tkn.specificType = "-";
             cout << "sub token stored!" << endl;
             tokenVector.push_back(tkn); // push token onto vector
             lexer.advance();
@@ -421,14 +421,14 @@ int main() {
 
         case ('*'):
             tkn.type = TokenType::Operator;
-            tkn.specificType = "MULT";
+            tkn.specificType = "*";
             cout << "mult token stored!" << endl;
             tokenVector.push_back(tkn); // push token onto vector
             lexer.advance();;
             break;
         case ('/'):
             tkn.type = TokenType::Operator;
-            tkn.specificType = "DIV";
+            tkn.specificType = "/";
             cout << "div token stored!" << endl;
             tokenVector.push_back(tkn); // push token onto vector
             lexer.advance();
@@ -438,7 +438,7 @@ int main() {
             if (lexer.peek() == '=')
             {
                 tkn.type = TokenType::Operator;
-                tkn.specificType = "ASSIGN";
+                tkn.specificType = ":=";
                 cout << "assign token stored!" << endl;
                 tokenVector.push_back(tkn); // push token onto vector
                 lexer.advance();
@@ -452,14 +452,14 @@ int main() {
             break;
         case ('('):
             tkn.type = TokenType::Punctuation;
-            tkn.specificType = "LPAREN";
+            tkn.specificType = "(";
             cout << "lparen token stored!" << endl;
             tokenVector.push_back(tkn); // push token onto vector
             lexer.advance();
             break;
         case (')'):
             tkn.type = TokenType::Punctuation;
-            tkn.specificType = "RPAREN";
+            tkn.specificType = ")";
             cout << "rparen token stored!" << endl;
             tokenVector.push_back(tkn); // push token onto vector
             lexer.advance();
@@ -497,7 +497,7 @@ int main() {
             if (lexer.peek() == '$')
             {
                 tkn.type = TokenType::End;
-                tkn.specificType = "End";
+                tkn.specificType = "$$";
                 tokenVector.push_back(tkn); // push token onto vector
                 lexer.advance();
                 lexer.advance();
@@ -572,7 +572,7 @@ int main() {
         }
         currentLine++;
     }
-    cout << endl << "LOADING TOKENS COMPLETE!" << endl << endl;
+    cout << endl << "LOADING TOKENS COMPLETE!" << endl << "-------------------------" << endl;
 
     /*cout << "DEBUG: Tokens" << endl;
     for (int i = 0; i < tokenVector.size(); i++){
@@ -583,9 +583,16 @@ int main() {
     // "Write main, which entails using the recursive descent logic PLUS conditionals that will determine the output"
     executing("program");
 
-    isStatementList();
+    bool parsed = false;
+    parsed = isStatementList();
 
-    cout << endl << endl << "No Error was generated." << endl;
+    if (parsed){
+        cout << endl << "-------------------------" << endl << "No Error was generated." << endl;
+    }
+    else {
+        cout << endl << "-------------------------" << endl << "An Error has occured." << endl;
+    }
+    
     
 
     // Creating the actual Output file
