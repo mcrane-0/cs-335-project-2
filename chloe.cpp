@@ -38,7 +38,7 @@ bool isAddOp()
 {
     if (tokenVector[n].specificType == "ADD" || tokenVector[n].specificType == "SUB")
     {
-        cout << "Token: " << tokenVector[n] << " consumed " << endl;
+        cout << "Token: " << tokenVector[n].specificType << " consumed " << endl;
         n++;
         return true;
     }
@@ -51,7 +51,7 @@ bool isMultOp()
 {
     if (tokenVector[n].specificType == "MULT" || tokenVector[n].specificType == "DIV")
     {
-        cout << "Token: " << tokenVector[n] << " consumed " << endl;
+        cout << "Token: " << tokenVector[n].specificType << " consumed " << endl;
         n++;
         return true;
     }
@@ -64,14 +64,14 @@ bool isFactor()
 {
 if (tokenVector[n].type == TokenType::Identifier || tokenVector[n].type == TokenType::Number)
 {
-    cout << "Token: " << tokenVector[n] << " consumed " << endl;
+    cout << "Token: " << tokenVector[n].specificType << " consumed " << endl;
     n++;
     return true;
 }
 else if (tokenVector[n].specificType == "LPAREN")
 {
     //Check this logic.
-    cout << "Token: " << tokenVector[n] << " consumed " << endl;
+    cout << "Token: " << tokenVector[n].specificType << " consumed " << endl;
     n++;
     if (!isExpr())
     {
@@ -81,7 +81,7 @@ else if (tokenVector[n].specificType == "LPAREN")
     {
         return false;
     }
-    cout << "Token: " << tokenVector[n] << " consumed " << endl;
+    cout << "Token: " << tokenVector[n].specificType << " consumed " << endl;
     n++;
     return true;
 }
@@ -131,11 +131,11 @@ bool isStatement()
 {
     if (tokenVector[n].type == TokenType::Identifier)
     {
-        cout << "Token: " << tokenVector[n] << " consumed " << endl;
+        cout << "Token: " << tokenVector[n].specificType << " consumed " << endl;
         n++;
         if (tokenVector[n].specificType == "ASSIGN")
         {
-            cout << "Token: " << tokenVector[n] << " consumed " << endl;
+            cout << "Token: " << tokenVector[n].specificType << " consumed " << endl;
             n++;
             return (isExpr());
         }
@@ -144,17 +144,17 @@ bool isStatement()
     {
         if (tokenVector[n].specificType == "WRITE")
         {
-            cout << "Token: " << tokenVector[n] << " consumed " << endl;
+            cout << "Token: " << tokenVector[n].specificType << " consumed " << endl;
             n++;
             return (isExpr());
         }
         else if (tokenVector[n].specificType == "READ")
         {
-            cout << "Token: " << tokenVector[n] << " consumed " << endl;
+            cout << "Token: " << tokenVector[n].specificType << " consumed " << endl;
             n++;
             if (tokenVector[n].type == TokenType::Identifier)
             {
-                cout << "Token: " << tokenVector[n] << " consumed " << endl;
+                cout << "Token: " << tokenVector[n].specificType << " consumed " << endl;
                 n++;
                 return true;
             }
@@ -168,7 +168,7 @@ bool isStatementList()
 {
     if (tokenVector[n].type == TokenType::End)
     {
-        cout << "Token: " << tokenVector[n] << " consumed " << endl;
+        cout << "Token: " << tokenVector[n].specificType << " consumed " << endl;
         return true;
     }
     if (!isStatement())
@@ -185,5 +185,5 @@ int main(){
     // and additional statements should be added for execution order. 
     // Not sure how to format that on one line.
     isStatementList();
-    }
+    
 }

@@ -71,6 +71,18 @@ Token token3;
 vector<Token> tokenVector = {token0, token1, token2, token3};*/
 vector<Token> tokenVector = {};
 int n = 0;//tokenVector index
+
+int isExecuting = 1; // 0 = no, 1 = yes, this is the first one after consuming a token, 2 = yes, but not the first after token
+void executing(string grammar){
+    if (isExecuting == 2 || isExecuting == 1){ // if
+        if (isExecuting == 1){
+            cout << endl << "Executing:\t";
+            isExecuting = 2;
+        }
+        cout << grammar << "() ";
+    }
+}
+
 //Parsing Declarations
 bool isExpr();
 bool isTerm();
@@ -81,6 +93,13 @@ bool isAddOp()
 {
     if (tokenVector[n].specificType == "ADD" || tokenVector[n].specificType == "SUB")
     {
+        if (isExecuting == 0){ // if not already executing,
+            isExecuting = 1; // it is now
+        }
+        executing("add_op");
+
+        isExecuting = 0;
+        cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         n++;
         return true;
     }
@@ -93,6 +112,13 @@ bool isMultOp()
 {
     if (tokenVector[n].specificType == "MULT" || tokenVector[n].specificType == "DIV")
     {
+        if (isExecuting == 0){ // if not executing
+            isExecuting = 1; // it is now
+        }
+        executing("mult_op");
+
+        isExecuting = 0;
+        cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         n++;
         return true;
     }
@@ -103,29 +129,52 @@ bool isMultOp()
 }
 bool isFactor()
 {
-if (tokenVector[n].type == TokenType::Identifier || tokenVector[n].type == TokenType::Number)
-{
-    n++;
-    return true;
-}
-else if (tokenVector[n].specificType == "LPAREN")
-{
-    n++;
-    if (!isExpr())
-    {
-        return false;
+    if (isExecuting == 0){ // if not executing
+        isExecuting = 1; // it is now
     }
-    if (tokenVector[n].specificType != "RPAREN")
+    executing("factor");
+
+    if (tokenVector[n].type == TokenType::Identifier || tokenVector[n].type == TokenType::Number)
     {
-        return false;
+        isExecuting = 0;
+
+        if (tokenVector[n].specificType == "END"){
+            cout << endl << "    Token:\t$$ consumed ";
+            return true;
+        }
+
+        cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+        n++;
+        return true;
     }
-    n++;
-    return true;
-}
-return false;
+    else if (tokenVector[n].specificType == "LPAREN")
+    {
+        //Check this logic.
+        isExecuting = 0;
+        cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+        n++;
+        if (!isExpr())
+        {
+            return false;
+        }
+        if (tokenVector[n].specificType != "RPAREN")
+        {
+            return false;
+        }
+        isExecuting = 0;
+        cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+        n++;
+        return true;
+    }
+    return false;
 }
 bool isFactorTail()
 {
+    if (isExecuting == 0){ // if not executing
+        isExecuting = 1; // it is now
+    }
+    executing("fact_tail");
+
     if (isMultOp())
     {
         if (!isFactor())
@@ -138,6 +187,11 @@ bool isFactorTail()
 }
 bool isTerm()
 {
+    if (isExecuting == 0){ // if not executing
+        isExecuting = 1; // it is now
+    }
+    executing("term");
+
     if (isFactor())
     {
         return (isFactorTail());
@@ -146,6 +200,11 @@ bool isTerm()
 }
 bool isTermTail()
 {
+    if (isExecuting == 0){ // if not executing
+        isExecuting = 1; // it is now
+    }
+    executing("term_tail");
+
     if (isAddOp())
     {
         if (!isTerm())
@@ -158,6 +217,11 @@ bool isTermTail()
 }
 bool isExpr()
 {
+    if (isExecuting == 0){ // if not executing
+        isExecuting = 1; // it is now
+    }
+    executing("expr");
+
     if (isTerm())
     {
         return isTermTail();
@@ -166,11 +230,21 @@ bool isExpr()
 }
 bool isStatement()
 {
+    if (isExecuting == 0){ // if not executing
+        isExecuting = 1; // it is now
+    }
+    executing("stmt");
+
     if (tokenVector[n].type == TokenType::Identifier)
     {
+        
+        isExecuting = 0;
+        cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         n++;
         if (tokenVector[n].specificType == "ASSIGN")
         {
+            isExecuting = 0;
+            cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
             n++;
             return (isExpr());
         }
@@ -179,14 +253,20 @@ bool isStatement()
     {
         if (tokenVector[n].specificType == "WRITE")
         {
+            isExecuting = 0;
+            cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
             n++;
             return (isExpr());
         }
         else if (tokenVector[n].specificType == "READ")
         {
+            isExecuting = 0;
+            cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
             n++;
             if (tokenVector[n].type == TokenType::Identifier)
             {
+                isExecuting = 0;
+                cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
                 n++;
                 return true;
             }
@@ -198,8 +278,13 @@ bool isStatement()
 }
 bool isStatementList()
 {
+    isExecuting = 1;
+    executing("stmt_list");
+
     if (tokenVector[n].type == TokenType::End)
     {
+        isExecuting = 0;
+        cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         return true;
     }
     if (!isStatement())
@@ -489,18 +574,21 @@ int main() {
     }
     cout << endl << "LOADING TOKENS COMPLETE!" << endl << endl;
 
-    cout << "DEBUG: Tokens" << endl;
+    /*cout << "DEBUG: Tokens" << endl;
     for (int i = 0; i < tokenVector.size(); i++){
         cout << "\tValue:\t" << tokenVector[i].specificType << endl;
-    }
+    }*/
 
 
     // "Write main, which entails using the recursive descent logic PLUS conditionals that will determine the output"
+    executing("program");
 
+    isStatementList();
+
+    cout << endl << endl << "No Error was generated." << endl;
     
 
     // Creating the actual Output file
-
 
 
     return 0;
