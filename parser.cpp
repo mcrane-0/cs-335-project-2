@@ -45,6 +45,9 @@ void nextLineAsVector(int lineNum){
 }
 
 
+// open output file
+ofstream output("output.txt");
+
 
 // Recursive descent logic
 enum class TokenType
@@ -77,9 +80,11 @@ void executing(string grammar){
     if (isExecuting == 2 || isExecuting == 1){ // if
         if (isExecuting == 1){
             cout << endl << "Executing:\t";
+            output << endl << "Executing:\t";
             isExecuting = 2;
         }
         cout << grammar << "() ";
+        output << grammar << "() ";
     }
 }
 
@@ -100,6 +105,7 @@ bool isAddOp()
 
         isExecuting = 0;
         cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+        output << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         n++;
         return true;
     }
@@ -118,7 +124,8 @@ bool isMultOp()
         executing("mult_op");
 
         isExecuting = 0;
-        cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+        cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";        
+        output << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         n++;
         return true;
     }
@@ -140,10 +147,12 @@ bool isFactor()
 
         if (tokenVector[n].specificType == "$$"){
             cout << endl << "    Token:\t$$ consumed ";
+            output << endl << "    Token:\t$$ consumed ";
             return true;
         }
 
         cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+        output << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         n++;
         return true;
     }
@@ -152,6 +161,7 @@ bool isFactor()
         //Check this logic.
         isExecuting = 0;
         cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+        output << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         n++;
         if (!isExpr())
         {
@@ -163,6 +173,7 @@ bool isFactor()
         }
         isExecuting = 0;
         cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+        output << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         n++;
         return true;
     }
@@ -240,11 +251,13 @@ bool isStatement()
         
         isExecuting = 0;
         cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+        output << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         n++;
         if (tokenVector[n].specificType == ":=")
         {
             isExecuting = 0;
             cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+            output << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
             n++;
             return (isExpr());
         }
@@ -255,6 +268,7 @@ bool isStatement()
         {
             isExecuting = 0;
             cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+            output << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
             n++;
             return (isExpr());
         }
@@ -262,11 +276,13 @@ bool isStatement()
         {
             isExecuting = 0;
             cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+            output << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
             n++;
             if (tokenVector[n].type == TokenType::Identifier)
             {
                 isExecuting = 0;
                 cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+                output << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
                 n++;
                 return true;
             }
@@ -285,6 +301,7 @@ bool isStatementList()
     {
         isExecuting = 0;
         cout << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
+        output << endl << "    Token:\t" << tokenVector[n].specificType << " consumed ";
         return true;
     }
     if (!isStatement())
@@ -572,31 +589,26 @@ int main() {
         }
         currentLine++;
     }
-    cout << endl << "LOADING TOKENS COMPLETE!" << endl << "-------------------------" << endl;
-
-    /*cout << "DEBUG: Tokens" << endl;
-    for (int i = 0; i < tokenVector.size(); i++){
-        cout << "\tValue:\t" << tokenVector[i].specificType << endl;
-    }*/
+    cout << endl << "LOADING TOKENS COMPLETE!" << endl << "--------------------------------------------------" << endl;
 
 
-    // "Write main, which entails using the recursive descent logic PLUS conditionals that will determine the output"
+    // main using the recursive descent logic
     executing("program");
 
     bool parsed = false;
     parsed = isStatementList();
 
     if (parsed){
-        cout << endl << "-------------------------" << endl << "No Error was generated." << endl;
+        cout << endl << "--------------------------------------------------" << endl << "No Error was generated." << endl;
+        output << endl << "--------------------------------------------------" << endl << "No Error was generated." << endl;
     }
     else {
-        cout << endl << "-------------------------" << endl << "An Error has occured." << endl;
+        cout << endl << "--------------------------------------------------" << endl << "An Error has occured." << endl;
+        output << endl << "--------------------------------------------------" << endl << "An Error has occured." << endl;
     }
     
-    
-
-    // Creating the actual Output file
-
+    output.close();
+    cout << "--------------------------------------------------" << endl << "Output saved to output.txt." << endl;
 
     return 0;
 }
